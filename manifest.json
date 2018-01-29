@@ -1,0 +1,14 @@
+{
+  "name": "DigiSignEmpApp",
+  "short_name": "DigiSignEmpApp",
+  "description": "Application for creating and managing digital signing requests for an employee of the bank.",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src":"src/images/inglogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

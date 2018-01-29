@@ -1,0 +1,39 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/digisignemp-app/digisignemp-app.html",
+  "fragments": [
+    "src/digisignemp-app/app-createrequest.html",
+    "src/digisignemp-app/app-login.html",
+    "src/digisignemp-app/app-success.html",
+    "src/digisignemp-app/app-overview.html"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/*.js",
+    "images//**//*",
+    "styles//*//*"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+  "builds": [
+    {
+      "preset": "es5-bundled"
+    },
+    {
+      "preset": "es6-bundled"
+    },
+    {
+      "preset": "es6-unbundled"
+    },
+    {
+      "name": "raw",
+      "js": {"compile": true,"minify": true},
+      "html": {"minify": true},
+      "css": {"minify": true},
+      "addServiceWorker": true,
+      "swPrecacheConfig": "sw-precache-config.js"
+    }
+  ]
+
+}

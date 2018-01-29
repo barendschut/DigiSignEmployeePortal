@@ -1,0 +1,80 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="./login-mixin.html">
+
+<dom-module id="app-success">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            #success img {
+                height: 200px;
+                width: 200px;
+                float: left;
+            }
+
+            span {
+                color: #1b0d9c;
+            }
+
+            paper-card {
+                margin-left: 20px;
+            }
+        </style>
+        <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
+
+        <paper-card alt="Success">
+            <div id="success" class="card-content">
+                <img src="./images/success.png">
+            </div>
+            <div id="error" class="card-content">
+                <p>{{localize("signRequest")}}
+                    <span>[[requestid]]</span> {{localize("successTrailMsg")}}
+                   <span><br/> {{localize('goBackTo')}}<paper-icon-button icon="home" on-tap="_gotoHome"></paper-icon-button></span>
+                </p>
+            </div>
+        </paper-card>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class AppSuccess extends LoginMixin(Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element)) {
+            static get is() { return 'app-success'; }
+            static get properties() {
+                return {
+                    success: {
+                        type: String,
+                        notify: true
+                    },
+                    page: {
+                        type: String,
+                        notify: true
+                    },
+                    requestid: {
+                        type: String,
+                        notify: true
+                    },
+                    language: {
+                        value: 'EN'
+                    }
+                };
+            }
+
+            _gotoHome() {
+                this.page = this.loggedin === true ? 'overview' : 'login';
+            }
+
+            attached() {
+                this.loadResources(this.resolveUrl("../locales.json"));
+            }
+        }
+
+        window.customElements.define(AppSuccess.is, AppSuccess);
+    </script>
+</dom-module>

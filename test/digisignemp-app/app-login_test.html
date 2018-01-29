@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>DigiSignEmp-app test</title>
+
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../bower_components/web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../../src/digisignemp-app/app-login.html">
+</head>
+
+<body>
+
+    <test-fixture id="BasicTestFixture">
+        <template>
+            <app-login></app-login>
+        </template>
+    </test-fixture>
+
+    <test-fixture id="ChangedPropertyTestFixture">
+        <template>
+            <app-login language="EN" password="mypassword">
+            </app-login>
+        </template>
+    </test-fixture>
+    <test-fixture id="InvalidLoginTestFixture">
+        <template>
+            <app-login password="wrongpassword">
+            </app-login>
+        </template>
+    </test-fixture>
+
+    <script>
+        suite('app-login', function () {
+
+            var responseHeaders = {
+                json: { 'Content-Type': 'application/json' },
+                plain: { 'Content-Type': 'text/plain' }
+            };
+
+            var ajax;
+            var request;
+            var server;
+
+            setup(function () {
+                stub('paper-button', {
+                    click: function () {
+                        console.log('LogIn button click is simulated');
+                    }
+                });
+
+                server = sinon.fakeServer.create();
+                server.respondWith(
+                    'POST',
+                    '/login',
+                    [
+                        200,
+                        responseHeaders.json,
+                        '{"success":true}'
+                    ]
+                );
+
+            });
+
+            test('instantiating the app-login element with default properties works', function () {
+                let element = fixture('BasicTestFixture');
+                assert.equal(element.username, '');
+                assert.equal(element.password, '');
+            });
+
+            test('setting properties on the app-login element works', function () {
+                let element = fixture('ChangedPropertyTestFixture');
+                assert.equal(element.language, 'EN');
+                assert.equal(element.password, 'mypassword');
+            });
+
+            test('Opening the toast during invalid login works', function () {
+                let element = fixture('InvalidLoginTestFixture');
+                let toast = element.shadowRoot.querySelector('paper-toast');
+                toast.show();
+                assert.equal(element.password, 'wrongpassword');
+                assert.isTrue(toast.opened);
+            });
+
+            test('Validating paper-button beahavior', function () {
+                let element = fixture('InvalidLoginTestFixture');
+                let loginButton = element.shadowRoot.querySelector('paper-button');
+                loginButton.click();
+                assert.isFalse(loginButton.active);
+            });
+
+            test('When iron ajax is called then response works', function () {
+                let element = fixture('BasicTestFixture');
+                ajax = element.shadowRoot.querySelector('iron-ajax');
+                ajax.set('url', '/login');
+                ajax.set('method', 'POST');
+                request = ajax.generateRequest();
+                server.respond();
+                expect(request.response).to.be.ok;
+                expect(request.response).to.be.an('object');
+                expect(request.response.success).to.be.equal(true);
+            });
+
+        });
+    </script>
+
+
+</body>
+
+</html>

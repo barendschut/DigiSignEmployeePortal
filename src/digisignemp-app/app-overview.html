@@ -1,0 +1,257 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="./login-mixin.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="app-overview">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            vaadin-grid {
+                padding: 2%;
+                font-family: Arial, sans-serif;
+                margin: 5px;
+            }
+
+            #vaadin-grid-cell-content-0,
+            #vaadin-grid-cell-content-3,
+            #vaadin-grid-cell-content-6,
+            #vaadin-grid-cell-content-9 {
+                color: #fff;
+                background-color: #FF6200;
+            }
+
+            .green {
+                color: green;
+            }
+
+            #signImage {
+                height: 20px;
+                width: 20px;
+            }
+
+            #head {
+                color: #FF6200;
+            }
+
+            iframe {
+                height: 200px;
+                width: 200px;
+            }
+
+            vaadin-grid {
+                height: auto;
+            }
+        </style>
+        <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
+
+        <vaadin-grid aria-label="Basic Binding Example" items="[[signRequestsList]]">
+
+            <vaadin-grid-column>
+                <template class="header">
+                    <span id="head">{{localize('signRequest')}} #</span>
+                </template>
+                <template>[[item.id]]</template>
+            </vaadin-grid-column>
+
+            <vaadin-grid-column>
+                <template class="header">
+                    <span id="head">{{localize('client')}}</span>
+                </template>
+                <template>[[item.client.label]]
+
+                </template>
+            </vaadin-grid-column>
+            <vaadin-grid-column width="20%">
+                <template class="header">
+                    <span id="head">{{localize('recepients')}}</span>
+                </template>
+                <template>
+                    <template is="dom-repeat" items=[[item.signRecipients]] as="recipient">
+                        [[recipient.contact.label]] ([[recipient.contact.email]]) <br/><br/>
+                    </template>
+                </template>
+            </vaadin-grid-column>
+
+            <vaadin-grid-column>
+                <template class="header">
+                    <span id="head">Document</span>
+                </template>
+                <template>
+                        <template is="dom-repeat" items=[[item.documents]] as="document">
+                                <span on-tap="_viewDocument">
+                                        <a href="#">[[document.fileName]]</a>
+                                </span>
+                            </template>
+                    
+                </template>
+            </vaadin-grid-column>
+
+            <vaadin-grid-column>
+                <template class="header">
+                    <span id="head">Status</span>
+                </template>
+                <template>
+                    <span style$="[[_getStyle(item.status)]]">[[item.status]]
+                        <img id="signImage" src$="[[_getIcon(item.status)]]">
+                    </span>
+                </template>
+            </vaadin-grid-column>
+
+        </vaadin-grid>
+        <div style="text-align:center;">
+            <span on-tap="_previous">
+                <a href="#">prev</a>
+            </span>
+            <span>|</span>
+            <span on-tap="_next">
+                <a href="#">next</a>
+            </span>
+        </div>
+        <iron-ajax id="signRequestsAjax" , method="GET" , handle-as="json" , on-response="handleResponse" , on-error="handleError">
+        </iron-ajax>
+        <iron-ajax id="documentAjax" , method="GET" , handle-as="blob" , on-response="handleDocResponse" , on-error="handleDocError">
+        </iron-ajax>
+        <paper-dialog id="scrolling">
+            <paper-dialog-scrollable>
+                <object id="documentObject" data="[[selectedFile]]" width="500px" height="500px">
+                    <p>Please note that the word documents(.doc/.docx) are currently not supported for viewing, and will be downloaded.</p>
+                </object>
+            </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm autofocus>OK</paper-button>
+            </div>
+        </paper-dialog>
+
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class AppOverview extends LoginMixin(Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element)) {
+            static get is() { return 'app-overview'; }
+            static get properties() {
+                return {
+                    fetch: {
+                        type: Boolean,
+                        computed: '_getSignRequests(accessToken)'
+                    },
+                    page: {
+                        type: String,
+                        notify: true
+                    },
+                    language: {
+                        value: 'EN'
+                    },
+                    signRequestsList: {
+                        type: Array,
+                        value: []
+                    },
+                    selectedFile: {
+                        type: Blob
+                    },
+                    pageNo: {
+                        type: Number,
+                        value: 0
+                    }
+                };
+            }
+
+            _getStyle(stat) {
+                return (stat === 'Signed') ? "color: green;" : '';
+            }
+
+            _getIcon(status) {
+                if(status === null || status === undefined){
+                    return;
+                }
+                return (status === 'Signed') ? "./images/signed.png" : './images/notSigned.png';
+            }
+
+            _previous() {
+                if(this.pageNo === 0){return;}
+                this.pageNo = this.pageNo - 1;
+                this._getSignRequests(this.accessToken);
+            }
+
+            _next() {
+                this.pageNo = this.pageNo + 1;
+                this._getSignRequests(this.accessToken);
+            }
+
+            _viewDocument(event) {
+                const docURL = baseURL + '/document/' + event.model.__data.document.id;
+                let context = this;
+                this._fetchDocument(docURL, function (blob) {
+                    let urlNew = URL.createObjectURL(blob);
+                    let objectElement = context.$.documentObject;
+                    objectElement.setAttribute('data', urlNew);
+                    context.$.scrolling.open();
+                })
+
+
+            }
+
+            _fetchDocument(docURL, success) {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', docURL, true);
+                xhr.responseType = 'blob';
+                xhr.setRequestHeader("Authorization", this.accessToken);
+                xhr.send(null);
+                xhr.onreadystatechange = function (oEvent) {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            success(xhr.response);
+                        } else {
+                            console.log('The sign request was not created successfully');
+                        }
+                    }
+                };
+            }
+
+            _getSignRequests(accessToken) {
+                this.$.signRequestsAjax.set('url', baseURL + '/signrequests/' + this.pageNo+"/"+1);
+                if (null !== this.accessToken && '' !== this.accessToken) {
+                    this.$.signRequestsAjax.headers['authorization'] = this.accessToken;
+                    this.$.signRequestsAjax.generateRequest();
+                }
+                return true;
+            }
+
+            handleResponse(response) {
+                if (null !== response.detail.__data.response && 0 !== response.detail.__data.response.length) {
+                    this.signRequestsList = response.detail.__data.response;
+                    return;
+                }else{
+                    this.pageNo = this.pageNo - 1;
+                }
+
+            }
+
+            handleError() {
+                console.log('ERROR in getting sign requests');
+            }
+
+
+            attached() {
+                this.loadResources(this.resolveUrl("../locales.json"));
+            }
+        }
+
+        window.customElements.define(AppOverview.is, AppOverview);
+    </script>
+</dom-module>

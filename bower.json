@@ -1,0 +1,41 @@
+{
+  "name": "digisignempapp",
+  "description": "Application for creating and managing digital signing requests for an employee of the bank.",
+  "main": "index.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "paper-card": "PolymerElements/paper-card#^2.0.0",
+    "app-layout": "PolymerElements/app-layout#^2.0.4",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.1",
+    "iron-icons": "PolymerElements/iron-icons#^2.0.1",
+    "paper-item": "PolymerElements/paper-item#^2.0.0",
+    "paper-listbox": "PolymerElements/paper-listbox#^2.0.0",
+    "paper-input": "PolymerElements/paper-input#^2.0.2",
+    "paper-button": "PolymerElements/paper-button#^2.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.5",
+    "paper-toast": "PolymerElements/paper-toast#^2.0.0",
+    "iron-pages": "PolymerElements/iron-pages#^2.0.0",
+    "app-route": "PolymerElements/app-route#^2.0.3",
+    "paper-spinner": "PolymerElements/paper-spinner#^2.0.0",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^2.0.0",
+    "iron-input": "PolymerElements/iron-input#^2.0.1",
+    "iron-validator-behavior": "PolymerElements/iron-validator-behavior#^2.0.0",
+    "iron-form": "PolymerElements/iron-form#^2.0.1",
+    "polymer-redux": "^1.0.4",
+    "app-localize-behavior": "PolymerElements/app-localize-behavior#^2.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
+    "vaadin-grid": "vaadin/vaadin-grid#^4.0.0",
+    "vaadin-upload": "vaadin/vaadin-upload#^3.0.0",
+    "paper-autocomplete": "ellipticaljs/paper-autocomplete#^3.4.0",
+    "paper-dialog": "PolymerElements/paper-dialog#^2.0.0",
+    "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior#^2.0.1",
+    "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.1.0",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1",
+    "paper-dropdown-input": "Juravenator/paper-dropdown-input#^2.5.2",
+    "vaadin-combo-box": "vaadin/vaadin-combo-box#^3.0.2"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  }
+}

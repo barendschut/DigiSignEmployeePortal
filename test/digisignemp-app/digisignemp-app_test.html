@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>DigiSignEmp-app test</title>
+
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../bower_components/web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../../src/digisignemp-app/digisignemp-app.html">
+  </head>
+  <body>
+
+    <test-fixture id="BasicTestFixture">
+      <template>
+        <digisignemp-app></digisignemp-app>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="ChangedPropertyTestFixture">
+      <template>
+        <digisignemp-app language="EN" page="login"></digisignemp-app>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('digisignemp-app', function() {
+
+        test('instantiating the digisignemp-app element with default properties works', function() {
+          let element = fixture('BasicTestFixture');
+          assert.isFalse(element.loggedin);
+          assert.equal(element.username, '');
+        });
+
+        test('setting properties on the digisignemp-app element works', function() {
+          let element = fixture('ChangedPropertyTestFixture');
+          assert.equal(element.language, 'EN');
+        });
+
+        test('logout button shouldn\'t be visible when NOT logged in', function() {
+          let element = fixture('BasicTestFixture');
+          let logoutButton = element.shadowRoot.querySelector('#logOut');
+          assert.isTrue(logoutButton.hidden);
+        });
+
+      });
+    </script>
+
+
+  </body>
+</html>

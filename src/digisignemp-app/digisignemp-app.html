@@ -1,0 +1,207 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="app-login.html">
+<link rel="lazy-import" href="app-createrequest.html">
+<link rel="import" href="app-success.html">
+<link rel="import" href="app-overview.html">
+<link rel="import" href="../../styles/shared-styles.html">
+<link rel="import" href="./login-mixin.html">
+
+<dom-module id="digisignemp-app">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+
+      iron-pages {
+        width: 100%;
+        height: 200px;
+      }
+
+      span {
+        color: #1b0d9c;
+        font-weight: bolder;
+      }
+
+      #headerImg {
+        background-size: contain;
+        width: 30px;
+        height: 20px;
+      }
+
+      h2 {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 10px;
+        color: #1b0d9c;
+      }
+
+      paper-dropdown-menu {
+        width: 25%;
+      }
+      p {
+        margin-left: 25%;
+        color: grey;
+        font-size: smaller;
+      }
+    </style>
+
+    <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
+    <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}">
+    </app-route>
+
+    <app-drawer-layout fullbleed>
+      <app-drawer id="drawer" swipe-open slot="drawer">
+        <div class="avatar-container">
+          <div class="image"></div>
+        </div>
+        <div class="contact-info">
+          <div class="name">{{localize("welcome")}}
+            <span>[[username]]</span>
+          </div>
+        </div>
+        <paper-listbox selected="[[page]]" attr-for-selected="name">
+          <paper-item name="login" hidden=[[loggedin]]>
+            <a href="[[rootPath]]login" name="login">{{localize("signin")}}</a>
+          </paper-item>
+          <paper-item name="overview" hidden=[[!loggedin]]>
+            <a href="[[rootPath]]overview" name="overview">{{localize("viewStatus")}}</a>
+          </paper-item>
+          <paper-item name="createrequest" hidden=[[!loggedin]]>
+            <a href="[[rootPath]]createrequest" name="createrequest">{{localize("createSR")}}</a>
+          </paper-item>
+        </paper-listbox>
+        <p>App Version 1.1.0</p>
+      </app-drawer>
+      <app-header-layout>
+        <app-header>
+          <app-toolbar>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div main-title>
+              <span>ING</span>
+              <img id="headerImg" src="./images/CORP_lion.png">
+            </div>
+            <paper-dropdown-menu no-animations label="{{localize('language')}}" on-iron-select="_changeLanguage">
+              <paper-tabs slot="dropdown-content" class="dropdown-content" selected="0">
+                <paper-tab><img id="headerImg" src="./images/en.png"><span hidden>EN</span></paper-tab>
+                <paper-tab><img id="headerImg" src="./images/nl.jpg"><span hidden>NL</span></paper-tab>
+              </paper-tabs>
+          </paper-dropdown-menu>
+            <paper-icon-button id="logOut" icon="power-settings-new" title="{{localize('logOut')}}" hidden={{!loggedin}} on-tap="_logOut"></paper-icon-button>
+          </app-toolbar>
+        </app-header>
+        <h2>{{localize("digisignHeader")}}</h2>
+        <iron-pages selected="[[page]]" attr-for-selected="name">
+          <app-login name="login" language="{{language}}" page={{page}}></app-login>
+          <app-createrequest name="createrequest" language="{{language}}" page={{page}} requestid={{requestid}}></app-createrequest>
+          <app-success name="success" language="{{language}}" page={{page}} requestid={{requestid}}></app-success>
+          <app-overview name="overview" language="{{language}}" page={{page}} ></app-overview>
+        </iron-pages>
+
+      </app-header-layout>
+    </app-drawer-layout>
+
+  </template>
+
+  <script>
+      /**
+       * Main app for wrapping up all the polymer elements required in this application.
+       * 
+       * @customElement
+       * @polymer
+       */
+       class DigiSignEmplApp extends LoginMixin(Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element)) {
+          static get is() { return 'digisignemp-app'; }
+          static get properties() {
+              return {
+                  page: {
+                      type: String,
+                      reflectToAttribute: true,
+                      observer: '_pageChanged'
+                  },
+                  routeData: Object,
+                  subroute: String,
+                  rootPath: String,
+                  requestid: {
+                      type: String,
+                      notify: true
+                  },
+                  language: {
+                        value: 'EN'
+                    }
+              };
+          }
+
+          static get observers() {
+              return [
+                  '_routePageChanged(routeData.page)',
+              ];
+          }
+
+          //Used for app-localization
+          attached() {
+                this.loadResources(this.resolveUrl("../locales.json"));
+            }
+
+          _changeLanguage(event){
+            this.language = event.target.selectedItem.textContent;
+          }
+
+          _routePageChanged(page) {
+              // If no page was found in the route data, page will be an empty string.
+              // Deault to 'client' in that case.
+              this.page = (this.loggedin) ? page : 'login';
+              // Close a non-persistent drawer when the page & route are changed.
+              if (!this.$.drawer.persistent) {
+                  this.$.drawer.close();
+              }
+          }
+
+          _pageChanged(page) {
+              // Load page import on demand. Show 404 page if fails.
+              var resolvedPageUrl = this.resolveUrl('app-' + page + '.html');
+              Polymer.importHref(
+                  resolvedPageUrl,
+                  null,
+                  this._showErrorPage.bind(this),
+                  true);
+          }
+
+          _showErrorPage() {
+              //redirect to login screen in case of any page not found, has to be changed to generic error screen.
+              this.page = 'login';
+          }
+
+          _logOut(event) {
+              this._clearLogInData();
+              this.page = 'login';
+          }
+
+          _clearLogInData() {
+              this.password = null;
+              this.dispatch('_onLogout');
+              console.log('LOGOUT: ', this.loggedin);
+              console.log('LOGOUT: ', this.username);
+              console.log('LOGOUT: ', this.accessToken);
+          }
+      }
+
+      window.customElements.define(DigiSignEmplApp.is, DigiSignEmplApp);
+  </script>
+</dom-module>

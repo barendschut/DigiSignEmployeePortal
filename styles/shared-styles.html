@@ -1,0 +1,87 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!-- shared styles for all views -->
+<dom-module id="shared-styles">
+  <template>
+    <style is="custom-styles" include="iron-flex iron-flex-layout iron-flex-alignment">
+
+    app-toolbar {
+      background-color: #f7f4f1;
+      color: #FF6200;
+      font-size: 30px;
+    }
+
+    paper-icon-button {
+      --paper-icon-button-ink-color: white;
+    }
+
+    app-header {
+      color: #fff;
+      font-size: 16px;
+      --app-header-background-rear-layer: {
+        background-color: #FF6200;          
+      };
+    }
+    app-drawer {
+      --app-drawer-scrim-background: #fafafacc;
+      --app-drawer-content-container: {
+        background-color: #f7fbfd;
+      }
+      
+    }
+
+    app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+    }
+
+    paper-item {
+      height: 94px;
+    }
+    paper-item > a {
+      width: 100%;
+      height: 100%;
+      line-height: 54px;
+      text-align: center;
+      text-decoration: none;
+      color: #FF6200;
+    }
+
+    .avatar-container {
+      position: relative;
+      border: 2px solid #f87031;
+      border-radius: 50%;
+      height: 90px;
+      padding: 2px;
+      width: 90px;
+      margin: 20px auto;
+    }
+    .avatar-container .image {
+      background-image: url('../images/inglogo.png');
+      background-size: contain;
+      border-radius: 50%;
+      height: 100%;
+      width: 100%;
+    }
+    .contact-info {
+      margin: 0 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #CCC;
+      text-align: center;
+    }
+    .contact-info .name {
+      font-weight: bold;
+      color: #FF6200;
+    }
+
+    .contact-info .email {
+      color: #FF6200;
+    }
+
+    .corp-orange {
+      color: #FF6200;
+      font-size: 14px;
+    }
+</style>
+  </template>
+</dom-module>

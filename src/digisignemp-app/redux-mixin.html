@@ -1,0 +1,39 @@
+<link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
+<script src="../../node_modules/redux/dist/redux.js"></script>
+
+<script>
+    const initialState = {
+        loggedin: false,
+        username: '',
+        accessToken: ''
+    };
+    const reducer = (state = initialState, action) => {
+        switch (action.type) {
+            case 'UPDATE_USER_NAME':
+                return Object.assign({}, state, {
+                    username: action.username
+                });
+            case 'LOGIN':
+                return Object.assign({}, state, {
+                    username: action.username,
+                    accessToken: action.accessToken,
+                    loggedin:true
+                });
+            case 'LOGOUT':
+                return Object.assign({}, state, {
+                    username: null,
+                    accessToken: null,
+                    loggedin:false
+                });
+            default:
+                return state;
+        }
+    };
+
+    //const store = Redux.createStore(reducer);
+    const store = Redux.createStore(
+        reducer, /* preloadedState, */
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    );
+    ReduxMixin = PolymerRedux(store);
+</script>

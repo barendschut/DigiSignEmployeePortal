@@ -1,0 +1,422 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="./email-validator.html">
+<link rel="import" href="./login-mixin.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<dom-module id="app-createrequest">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+                font-family: Arial, sans-serif;
+            }
+
+            paper-card {
+                margin-top: 15px;
+                --paper-card-header-color: #FF6200;
+                margin-left: 5%;
+                margin-right: 5%;
+                width: 80%;
+            }
+
+            paper-button {
+                color: white;
+                background-color: #FF6200;
+                font-size: 14px;
+                margin-top: 1%;
+                text-transform: capitalize;
+            }
+
+            vaadin-upload {
+                margin-top: 2%;
+                margin-right: 2%;
+                background-color: #f7f5f1;
+                --vaadin-upload-file-row: {
+                    background-color: rgba(183, 225, 205, 0.24);
+                    padding: 5px;
+                    border-radius: 4px 4px 0px 0px;
+                }
+                ;
+            }
+
+            .small {
+                height: 30px;
+                background-color: white;
+                color: #FF6200;
+                font-weight: bolder;
+            }
+
+            .small:hover {
+                background-color: #FF6200;
+                color: white;
+            }
+
+            .container-button {
+                @apply --layout-horizontal;
+                @apply --layout-end;
+                @apply --layout-center-justified;
+            }
+
+            #aboutMessage {
+                margin-top: 0%;
+                font-weight: bolder;
+                font-size: 16px;
+            }
+
+            paper-input {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            vaadin-grid {
+                padding: 2%;
+                height: auto;
+                font-family: Arial, sans-serif;
+                margin-top: 2%;
+            }
+
+            #head {
+                color: #FF6200;
+            }
+
+            div {
+                margin-top: 2%;
+            }
+
+            form {
+                margin-left: 1%;
+            }
+
+            paper-checkbox#viewOnly {
+                margin-top: 3%;
+                --paper-checkbox-checked-color: var( --paper-deep-orange-500);
+            }
+
+            paper-checkbox .subtitle {
+                display: block;
+                font-size: 0.8em;
+                margin-top: 2px;
+                max-width: 300px;
+            }
+
+            paper-textarea {
+                width: 100%;
+                max-width: 350px;
+                padding: 1%;
+            }
+
+            .dropFile {
+                color: #bab7b1;
+                align-self: center;
+                margin-left: 1%;
+            }
+
+            paper-dialog {
+                padding: 0px;
+                margin: 0px;
+            }
+        </style>
+
+        <iron-ajax auto url="[[_getCompleteUrl()]]" headers="[[headers]]" method="GET" last-response="{{clients}}"></iron-ajax>
+        <iron-ajax id="contactsAjax" method="GET" on-response="_handleGetContactsResponse" on-error="_handleGetContactsException"></iron-ajax>
+        <iron-form id="signReqForm">
+            <form>
+                <div class="card-content">
+                    <div id="aboutMessage" class="corp-orange">{{localize("uploadMsg")}}</div>
+                    <template is="dom-if" if="[[recipients.length]]">
+                        <vaadin-grid aria-label="Recipients List" items="[[recipients]]">
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <span id="head">{{localize('name')}}</span>
+                                </template>
+                                <template>[[item.contact.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <span id="head">{{localize('mail')}}</span>
+                                </template>
+                                <template>[[item.contact.email]]
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <span id="head">{{localize('signingRight')}}</span>
+                                </template>
+                                <template>
+                                    <paper-checkbox disabled checked=[[item.actionToTake]]>{{localize('viewOnly')}}</paper-checkbox>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">
+                                    <span id="head">{{localize('action')}}</span>
+                                </template>
+                                <template>
+                                    <paper-icon-button on-tap="_removeRecipient" class="corp-orange" icon="icons:delete"></paper-icon-button>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </template>
+                    <paper-button class="small" raised on-click="_openRecipientsDialog">
+                        + {{localize('addRecipients')}}
+                    </paper-button>
+                </div>
+                <paper-dialog id="inputDialog">
+                    <paper-dialog-scrollable>
+                        <img src="../../images/header.PNG" />
+                        <div class="corp-orange">{{localize("addRecptDialog")}}</div>
+                        <vaadin-combo-box label="Select a client" id="clientData" items={{clients}} on-selected-item-changed="_getContactsForClients"></vaadin-combo-box>
+                        <vaadin-combo-box label="Select a contact" id="contact" items={{contacts}} on-selected-item-changed="_selectContact"></vaadin-combo-box>
+                        <paper-input disabled id="recipientName" label="{{localize('name')}}">
+                            <iron-icon icon="icons:perm-identity" slot="suffix"></iron-icon>
+                        </paper-input>
+                        <paper-input disabled id="recipientMail" label="{{localize('mail')}}">
+                            <iron-icon icon="mail" slot="suffix"></iron-icon>
+                        </paper-input>
+                        <paper-checkbox id="viewOnly">{{localize('viewOnly')}}
+                            <span class="subtitle">
+                                Tick this to restrict the user only to view the document(s).
+                            </span>
+                        </paper-checkbox>
+                    </paper-dialog-scrollable>
+                    <div class="buttons">
+                        <paper-button class="small" dialog-dismiss>Cancel</paper-button>
+                        <paper-button class="small" autofocus on-tap="_addRecipients">OK</paper-button>
+                    </div>
+                </paper-dialog>
+                <vaadin-upload id="filesUpload" no-auto files="{{files}}">
+                    <paper-button class="small" raised slot="add-button">Upload Documents</paper-button>
+                    <iron-icon class="dropFile" slot="drop-label-icon" icon="description"></iron-icon>
+                    <span class="dropFile" slot="drop-label">Drop files here..</span>
+                    <template is="dom-if" if="[[files.length]]">
+                        <div slot="file-list">
+                            <h4 class="corp-orange">Documents:</h4>
+                            <ul>
+                                <template is="dom-repeat" items="{{files}}" as="file">
+                                    <li class="corp-orange">
+                                        <a href="#">[[file.name]]</a>
+                                        <paper-icon-button on-tap="_removeFile" class="corp-orange" icon="icons:delete"></paper-icon-button>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </vaadin-upload>
+                <paper-textarea id="textMessage" label="Please enter a message to the recipient(s)." char-counter maxlength="500"></paper-textarea>
+                <div id="button" class="container-button">
+                    <paper-button id="createButton" raised on-tap="_createSignRequest">{{localize('createSR')}}</paper-button>
+                </div>
+            </form>
+        </iron-form>
+
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class AppCreateRequest extends LoginMixin(Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element)) {
+
+            static get is() { return 'app-createrequest'; }
+
+            static get properties() {
+                return {
+                    page: {
+                        type: String,
+                        notify: true
+                    },
+                    headers: {
+                        type: Object,
+                        computed: '_getHeaders(accessToken)'
+                    },
+                    signRequest: {
+                        type: Object,
+                        value: {
+                            client: {
+                                type: Object,
+                                value: {}
+                            },
+                            employee: {
+                                type: Object,
+                                id: 1,
+                                name: "superuser"
+                            },
+                            subject: "New sign request created",
+                            message: "Please call customer care for more info"
+                        }
+                    },
+                    documents: {
+                        type: Array,
+                        value: [{
+
+                        }]
+                    },
+                    recipients: {
+                        type: Array,
+                        value: [{
+                            contact: {
+                                name: null,
+                                email: null,
+                                role: null
+                            },
+                            actionToTake: Boolean
+                        }]
+                    },
+                    requestid: {
+                        type: String,
+                        notify: true
+                    },
+                    language: {
+                        value: 'EN'
+                    },
+                    clients: {
+                        type: Array,
+                        value: []
+                    },
+                    contacts: {
+                        type: Array,
+                        value: []
+                    }
+                };
+            }
+
+            ready() {
+                super.ready();
+                this.splice('recipients', 0, 1);
+            }
+
+            _getCompleteUrl() {
+                return baseURL + "/clients";
+            }
+
+            _selectContact(){
+                this.$.recipientName.value = this.$.contact.selectedItem.label;
+                this.$.recipientMail.value = this.$.contact.selectedItem.email;
+            }
+
+            _getHeaders() {
+                return { 'Authorization': this.accessToken };
+            }
+
+            _getContactsForClients(event) {
+                this.signRequest.client = this.$.clientData.selectedItem;
+                this.notifyPath('signRequest.client');
+
+                this.$.contactsAjax.set('url', baseURL + "/contacts/" + this.$.clientData.value);
+                if (null !== this.accessToken && '' !== this.accessToken) {
+                    this.$.contactsAjax.headers['authorization'] = this.accessToken;
+                    this.$.contactsAjax.generateRequest();
+                }
+            }
+
+            _handleGetContactsResponse(response){
+                this.contacts = response.detail.__data.response;
+            }
+
+            _createSignRequest() {
+                var upload = this.$.filesUpload;
+                var uploadButton = this.$.createButton;
+                this.documents = upload.files;
+                this.signRequest.documents = null;
+                this.signRequest.signRecipients = this.recipients;
+
+                this.signRequest.message = this.$.textMessage.value;
+                this._callCreateSignRequestService();
+            }
+
+            _callCreateSignRequestService() {
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', baseURL + '/signrequests', true);
+                xhr.setRequestHeader('Authorization', this.accessToken);
+                var formData = new FormData();
+                formData.append("signRequestString", JSON.stringify(this.signRequest));
+                for (let i = 0; i < this.documents.length; i++) {
+                    formData.append("documents", this.documents[i]);
+                }
+                xhr.send(formData);
+                let context = this;
+                xhr.onreadystatechange = function (oEvent) {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            context.page = "success";
+                            context._clearData(context);
+                            console.log("SUCCESS: " + xhr.responseText);
+                        } else {
+                            console.log("ERR: " + JSON.parse(xhr.response));
+                        }
+                    }
+                };
+            }
+
+            _clearData(context) {
+                context.recipients = [];
+                context.$.textMessage.value = "";
+                context.$.filesUpload.files = [];
+            }
+
+            attached() {
+                this.loadResources(this.resolveUrl('../locales.json'));
+            }
+
+            _openRecipientsDialog() {
+                this.$.inputDialog.open();
+            }
+
+            _addRecipients() {
+                if (this._isEmpty(this.$.recipientName.value) || this._isEmpty(this.$.recipientMail.value)) {
+                    return;
+                }
+                this.push('recipients', {
+                    contact: {
+                        id: this.$.contact.selectedItem.value,
+                        name: this.$.recipientName.value,
+                        email: this.$.recipientMail.value
+                    },
+                    actionToTake: this.$.viewOnly.checked,
+                    clientContactId: this.$.contact.selectedItem.value
+                });
+                this._clearValues();
+            }
+
+            _removeRecipient(event) {
+                this.splice('recipients', event.model.index, 1);
+            }
+
+            _removeFile(event) {
+                this.splice('files', event.model.index, 1);
+            }
+
+            _isEmpty(value) {
+                return (value === null || value === undefined);
+            }
+
+            _clearValues() {
+                this.$.recipientName.value = null;
+                this.$.recipientMail.value = null;
+                this.$.viewOnly.checked = false;
+                this.$.inputDialog.close();
+            }
+
+        }
+
+        window.customElements.define(AppCreateRequest.is, AppCreateRequest);
+    </script>
+</dom-module>

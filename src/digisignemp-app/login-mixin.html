@@ -1,0 +1,45 @@
+<link rel="import" href="./redux-mixin.html">
+<script>
+    LoginMixin = Parent => class LoginMixin extends ReduxMixin(Parent) {
+        static get properties() {
+            return {
+                username: {
+                    type: String,
+                    statePath: 'username'
+                },
+                loggedin: {
+                    type: Boolean,
+                    value: false,
+                    statePath: 'loggedin'
+                },
+                accessToken: {
+                    type: String,
+                    statePath: 'accessToken'
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                _updateUsername(username) {
+                    return {
+                        type: 'UPDATE_USERNAME',
+                        username
+                    }
+                },
+                _onLogin(username, accessToken) {
+                    return {
+                        type: 'LOGIN',
+                        username,
+                        accessToken
+                    }
+                },
+                _onLogout() {
+                    return {
+                        type: 'LOGOUT'
+                    }
+                }
+            };
+        }
+    };
+</script>

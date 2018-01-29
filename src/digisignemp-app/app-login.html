@@ -1,0 +1,124 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="./login-mixin.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+
+<dom-module id="app-login">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            #loginSuccess {
+                --paper-toast-background-color: #FF6200;
+                --paper-toast-color: white;
+            }
+
+            paper-button {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-weight: normal;
+                font-size: 14px;
+                -webkit-font-smoothing: antialiased;
+                background-color: #FF6200;
+                color: #fff;
+            }
+
+            paper-card {
+                --paper-card-header-color: #FF6200;
+                margin: 5%;
+            }
+
+            paper-input {
+                width: 300px;
+            }
+        </style>
+        <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
+        <iron-ajax id="loginAjax" handle-as="json" content-type="application/json" on-response="_handleLoginResponse" on-error="_handleLoginError">
+        </iron-ajax>
+        <paper-card heading="{{localize('login')}}" alt="Login">
+            <div class="card-content">
+                <paper-input id="usernamePaperInput" always-float-label label="{{localize('username')}}" value={{username}} invalid$={{!username}}></paper-input>
+                <paper-input id="passwordPaperInput" always-float-label label="{{localize('password')}}" value={{password}} type="password" invalid$={{!password}}></paper-input>
+            </div>
+            <div class="card-actions">
+                <paper-button raised class="indigo" on-click="_performLogin">{{localize('login')}}</paper-button>
+            </div>
+        </paper-card>
+        <paper-toast id="loginSuccess" class="fit-bottom" text="{{toastMessage}}"></paper-toast>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class AppLogin extends LoginMixin(Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element)) {
+            static get is() { return 'app-login'; }
+
+            static get properties() {
+                return {
+                    password: {
+                        type: String,
+                        value: ''
+                    },
+                    toastMessage: {
+                        type: String
+                    },
+                    page: {
+                        type: String,
+                        notify: true
+                    },
+                  language: {
+                        value: 'EN'
+                    }
+                };
+            }
+
+            _performLogin() {
+                this.$.loginAjax.set('url', baseURL+'/login');
+                this.$.loginAjax.set('method', 'POST');
+                this.$.loginAjax.set('body', JSON.stringify({
+                    "username": this.username,
+                    "password": this.password
+                }));
+                this.$.loginAjax.generateRequest();
+            }
+
+            attached() {
+                this.loadResources(this.resolveUrl("../locales.json"));
+            }
+
+            _handleLoginResponse(response, request) {
+                this.page = "overview";
+                this.dispatch('_onLogin',  this.username, request.xhr.getResponseHeader('Authorization'));
+                this._clearData();
+            }
+
+            _clearData() {
+                this.$.usernamePaperInput.value='';
+                this.$.passwordPaperInput.value='';
+            }
+            _showToast(){
+                this.toastMessage = 'Login Failed';
+                this.$.loginSuccess.open();
+                return;
+            }
+
+            _handleLoginError(event) {
+                var errorMessages = event.detail.request.__data.response;
+                this._showToast();
+            }
+
+        }
+
+        window.customElements.define(AppLogin.is, AppLogin);
+    </script>
+</dom-module>
